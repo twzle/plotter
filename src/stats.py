@@ -10,7 +10,8 @@ class Stats:
              queue_packet_processing_delays: Dict[int, float],
              user_packet_processing_delays: Dict[int, float],
              scheduler_throughput: float,
-             max_scheduler_throughput: float):
+             max_scheduler_throughput: float,
+             scheduler_unused_resources: float):
         ''' 
         Initialize statistics container.
         
@@ -23,7 +24,8 @@ class Stats:
             queue_packet_processing_delays: Delays per queue
             user_packet_processing_delays: Delays per user
             scheduler_throughput: Average throughput
-            max_scheduler_throughput: Maximum observed throughput
+            max_scheduler_throughput: Maximum theoretical throughput
+            scheduler_unused_resources: Part of unused resources from maximum
         '''
         self.scheduler_total_time = scheduler_total_time
         self.scheduler_processing_time = scheduler_processing_time
@@ -34,6 +36,7 @@ class Stats:
         self.user_packet_processing_delays = user_packet_processing_delays
         self.scheduler_throughput = scheduler_throughput
         self.max_scheduler_throughput = max_scheduler_throughput
+        self.scheduler_unused_resources = scheduler_unused_resources
 
     def __str__(self):
         return (f"Stats:\n"
@@ -45,7 +48,8 @@ class Stats:
                 f"queue_packet_processing_delays={self.queue_packet_processing_delays}, \n"
                 f"user_packet_processing_delays={self.user_packet_processing_delays}, \n"
                 f"scheduler_throughput={self.scheduler_throughput:.6f}, \n"
-                f"max_scheduler_throughput={self.max_scheduler_throughput:.6f})")
+                f"max_scheduler_throughput={self.max_scheduler_throughput:.6f}, \n"
+                f"scheduler_unused_resources={self.scheduler_unused_resources:.6f})")
 
 # Импорт данных из YAML в объект класса Stats
 def load_stats_from_yaml(file_path: str) -> Stats:
@@ -71,4 +75,6 @@ def load_stats_from_yaml(file_path: str) -> Stats:
             data.get("scheduler_throughput", 0.0),
         max_scheduler_throughput=
             data.get("max_scheduler_throughput", 0.0), 
+        scheduler_unused_resources=
+            data.get("scheduler_unused_resources", 0.0), 
     )
