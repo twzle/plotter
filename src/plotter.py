@@ -11,8 +11,9 @@ def log_draw(fn):
         path = fn(*args, **kwargs)
         print(f"{fn.__name__}: Done.\n"
               f"Saved to {os.getcwd()}{path[1:]}\n")
-        return
+        return path
 
+    inner.__wrapped__ = fn
     return inner
 
 class Plotter:
