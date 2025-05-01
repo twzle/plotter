@@ -1,5 +1,6 @@
 import yaml
 import argparse
+import time
 
 
 from src.stats import load_stats_from_yaml

@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, MagicMock, call
-import os
+import os, sys, io
 import matplotlib.pyplot as plt
 from src.stats import Stats
 from src.plotter import Plotter, log_draw  # Импортируем декоратор отдельно
@@ -15,7 +15,7 @@ class TestPlotter(unittest.TestCase):
             scheduler_wait_time=5.0,
             scheduler_packet_processing_delay=0.005,
             queue_packet_processing_delays={1: 0.002, 2: 0.003},
-            user_packet_processing_delays={101: 0.001, 102: 0.004},
+            user_packet_processing_delays={1: 0.001, 2: 0.004},
             scheduler_throughput=50.5,
             max_scheduler_throughput=100.0,
             scheduler_unused_resources=0.3
@@ -45,7 +45,7 @@ class TestPlotter(unittest.TestCase):
         plotter = Plotter(self.test_stats)
         
         # Меняем декоратор на обычную функцию для теста
-        original_method = plotter.draw_queue_packet_processing_delay_pie_chart.__wrapped__
+        original_method = plotter.draw_queue_packet_processing_delay_bar_chart.__wrapped__
         result = original_method(
             plotter,
             self.test_stats.scheduler_packet_processing_delay,
@@ -63,6 +63,39 @@ class TestPlotter(unittest.TestCase):
         
         # Проверяем путь сохранения
         self.assertTrue(result.endswith("output/queue_packet_processing_delay_bar_chart.png"))
+
+    @patch("matplotlib.pyplot.bar")
+    @patch("matplotlib.pyplot.tight_layout")
+    @patch("matplotlib.pyplot.title")
+    @patch("matplotlib.pyplot.xlabel")
+    @patch("matplotlib.pyplot.ylabel")
+    @patch("matplotlib.pyplot.savefig")
+    @patch("matplotlib.pyplot.close")
+    def test_draw_user_packet_processing_delay_bar_chart(
+        self, mock_close, mock_savefig, mock_ylabel, 
+        mock_xlabel, mock_title, mock_tight, mock_bar):
+        """Тест генерации графика задержек в очередях"""
+        plotter = Plotter(self.test_stats)
+        
+        # Меняем декоратор на обычную функцию для теста
+        original_method = plotter.draw_user_packet_processing_delay_bar_chart.__wrapped__
+        result = original_method(
+            plotter,
+            self.test_stats.scheduler_packet_processing_delay,
+            self.test_stats.user_packet_processing_delays
+        )
+        
+        # Проверяем вызовы matplotlib
+        mock_bar.assert_called_once()
+        mock_title.assert_called_once_with("Задержка обслуживания пакетов пользователей", pad=20)
+        mock_xlabel.assert_called_once_with("Идентификатор пользователя")
+        mock_ylabel.assert_called_once_with("Задержка (мс)")
+        mock_tight.assert_called_once()
+        mock_savefig.assert_called_once()
+        mock_close.assert_called_once()
+        
+        # Проверяем путь сохранения
+        self.assertTrue(result.endswith("output/user_packet_processing_delay_bar_chart.png"))
 
     @patch("matplotlib.pyplot.pie")
     @patch("matplotlib.pyplot.axis")
@@ -110,13 +143,14 @@ class TestPlotter(unittest.TestCase):
         scheduler_unused_resources = 0.3
         max_scheduler_resources = 1.0
         
-        # Вызываем метод
-        result = plotter.draw_scheduler_throughput_bar_chart(
-            scheduler_throughput,
-            max_scheduler_throughput,
-            scheduler_unused_resources,
-            max_scheduler_resources
-        )
+        with patch("builtins.print"):
+            # Вызываем метод
+            result = plotter.draw_scheduler_throughput_bar_chart(
+                scheduler_throughput,
+                max_scheduler_throughput,
+                scheduler_unused_resources,
+                max_scheduler_resources
+            )
         
         # Проверяем основные моменты:
         
@@ -142,7 +176,7 @@ class TestPlotter(unittest.TestCase):
         self.assertTrue(result.endswith("output/scheduler_throughput_bar_chart.png"))
 
     @patch.object(Plotter, 'draw_modelling_time_pie_chart')
-    @patch.object(Plotter, 'draw_queue_packet_processing_delay_pie_chart')
+    @patch.object(Plotter, 'draw_queue_packet_processing_delay_bar_chart')
     @patch.object(Plotter, 'draw_user_packet_processing_delay_bar_chart')
     @patch.object(Plotter, 'draw_scheduler_throughput_bar_chart')
     def test_run_success(
@@ -180,7 +214,7 @@ class TestPlotter(unittest.TestCase):
         @log_draw
         def test_func():
             return "./test/path.png"
-            
+        
         # Вызываем функцию
         test_func()
         

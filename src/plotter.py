@@ -29,7 +29,7 @@ class Plotter:
                 self.stats.scheduler_idle_time,
                 self.stats.scheduler_wait_time)
             
-            self.draw_queue_packet_processing_delay_pie_chart(
+            self.draw_queue_packet_processing_delay_bar_chart(
                 self.stats.scheduler_packet_processing_delay,
                 self.stats.queue_packet_processing_delays)
             
@@ -46,7 +46,7 @@ class Plotter:
             print(e)
     
     @log_draw
-    def draw_queue_packet_processing_delay_pie_chart(
+    def draw_queue_packet_processing_delay_bar_chart(
         self,
         scheduler_packet_processing_delay: float, 
         queue_packet_processing_delays: Dict[int, float]):
