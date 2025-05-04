@@ -9,8 +9,8 @@ OUTPUT_DIR = "output/"
 def log_draw(fn):
     def inner(*args, **kwargs):
         path = fn(*args, **kwargs)
-        print(f"{fn.__name__}: Done.\n"
-              f"Saved to {os.getcwd()}{path[1:]}\n")
+        print(f"{fn.__name__}.\n"
+              f"Сохранено в {os.getcwd()}{path[1:]}\n")
         return path
 
     inner.__wrapped__ = fn

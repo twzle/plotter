@@ -21,7 +21,7 @@ def parse_args():
 def main():
     try:
         print("\n--------------\n")
-        print("Plotter executed...\n")
+        print("Модуль визуализации запущен...\n")
         args = parse_args()
         stats = load_stats_from_yaml(args.file)
     except Exception as e:
